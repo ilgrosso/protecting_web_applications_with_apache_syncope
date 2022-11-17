@@ -1,7 +1,7 @@
 version: '3.3'
 
 networks:
-  frontend:
+  demo:
     ipam:
       config:
         - subnet: 172.20.0.0/24
@@ -11,7 +11,7 @@ services:
      image: postgres:15
      restart: always
      networks:
-       - frontend
+       - demo
      environment:
        POSTGRES_DB: syncope
        POSTGRES_USER: syncope
@@ -25,13 +25,14 @@ services:
        - "18080:8080"
      restart: always
      volumes:
+       - "./conf/core-demo.properties:/opt/syncope/conf/core-demo.properties:ro"
        - "./conf/domains:/opt/syncope/conf/domains:ro"
        - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
      networks:
-       - frontend
+       - demo
      environment:
        JAVA_OPTS: "-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -Djavax.net.ssl.trustStore=/opt/syncope/conf/wa.p12 -Djavax.net.ssl.trustStorePassword=password"
-       SPRING_PROFILES_ACTIVE: docker,pgjsonb
+       SPRING_PROFILES_ACTIVE: docker,pgjsonb,demo
        LOADER_PATH: "/opt/syncope/conf,/opt/syncope/lib,/opt/syncope/jpa-json"
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
@@ -57,7 +58,7 @@ services:
      volumes:
        - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
      networks:
-       - frontend
+       - demo
      environment:
        JAVA_OPTS: "-Dfile.encoding=UTF-8 -Dwicket.ioc.useByteBuddy=true -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -Djavax.net.ssl.trustStore=/opt/syncope/conf/wa.p12 -Djavax.net.ssl.trustStorePassword=password"
        SPRING_PROFILES_ACTIVE: docker
@@ -77,7 +78,7 @@ services:
        - "38080:8080"
      restart: always
      networks:
-       - frontend
+       - demo
      environment:
        SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
@@ -97,7 +98,7 @@ services:
        - "./conf/wa-demo.properties:/opt/syncope/conf/wa-demo.properties:ro"
        - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
      networks:
-       frontend:
+       demo:
          ipv4_address: 172.20.0.6
      environment:
        SPRING_PROFILES_ACTIVE: docker,demo
@@ -117,12 +118,11 @@ services:
        - "9009:9009"
      restart: always
      networks:
-       - frontend
+       - demo
      environment:
        OIDC_CLIENT_ID: sample-client-id
        OIDC_CLIENT_SECRET: sample-client-secret
        OIDC_PROVIDER: https://syncope-wa:8443/syncope-wa/oidc
-       OIDC_SCOPES: openid profile
        OIDC_DO_INTROSPECTION: false
        OIDC_DO_REFRESH: false
        GODEBUG: x509ignoreCN=0

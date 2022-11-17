@@ -10,16 +10,25 @@
   <AnyTypeClass id="BaseGroup"/>
   <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
         
-  <!-- Actual plain schemas -->
   <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
-  <SyncopeSchema id="email"/>
-  <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               validator_id="EmailAddressValidator"/>
-  
   <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+
+  <SyncopeSchema id="email"/>
+  <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
+               validator_id="EmailAddressValidator"/>
+  <SyncopeSchema id="firstname"/>
+  <PlainSchema id="firstname" type="String" anyTypeClass_id="BaseUser"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <SchemaLabel id="d90f90d0-cf15-407e-bac7-d46a8eb57c05" schema_id="firstname" locale="en" display="Firstname"/>
+  <SchemaLabel id="a9465ef0-b8b4-4af4-840d-77031a6b54a0" schema_id="firstname" locale="it" display="Nome"/>
+  <SyncopeSchema id="surname"/>
+  <PlainSchema id="surname" type="String" anyTypeClass_id="BaseUser"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <SchemaLabel id="69712058-162a-4e2a-b07e-c78d82dc286d" schema_id="surname" locale="en" display="Surname"/>
+  <SchemaLabel id="77e7bbbb-d30c-47e1-b6d2-e0a9e8c11fe2" schema_id="surname" locale="it" display="Cognome"/>
 
   <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
@@ -100,9 +109,9 @@ we are happy to inform you that the password request was successfully executed f
                realm_id="ea696a4f-e77a-4ef1-be67-8f8093bc8686"
                username="tirasa" creator="admin" lastModifier="admin"
                creationDate="2022-11-15 11:00:00" lastChangeDate="2022-11-15 11:00:00" suspended="0"
-               plainAttrs='[]'/>
+               plainAttrs='[{"values":[{"stringValue":"Tirasa"}],"schema":"firstname"},{"values":[{"stringValue":"Tirasa"}],"schema":"surname"},{"uniqueValue":{"stringValue":"test@tirasa.net"},"schema":"email"}]'/>
   
-  <AuthModule authModuleOrder="0" id="Internal" items="[]" authModuleState="ACTIVE" jsonConf="{&quot;_class&quot;:&quot;org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf&quot;,&quot;domain&quot;:&quot;Master&quot;}"/>
+  <AuthModule authModuleOrder="0" id="Internal" items="[{&quot;intAttrName&quot;:&quot;syncopeUserAttr_email&quot;,&quot;extAttrName&quot;:&quot;email&quot;,&quot;connObjectKey&quot;:false,&quot;password&quot;:false,&quot;mandatoryCondition&quot;:&quot;false&quot;,&quot;purpose&quot;:null,&quot;propagationJEXLTransformer&quot;:null,&quot;pullJEXLTransformer&quot;:null,&quot;transformers&quot;:[]},{&quot;intAttrName&quot;:&quot;syncopeUserAttr_surname&quot;,&quot;extAttrName&quot;:&quot;family_name&quot;,&quot;connObjectKey&quot;:false,&quot;password&quot;:false,&quot;mandatoryCondition&quot;:&quot;false&quot;,&quot;purpose&quot;:null,&quot;propagationJEXLTransformer&quot;:null,&quot;pullJEXLTransformer&quot;:null,&quot;transformers&quot;:[]},{&quot;intAttrName&quot;:&quot;syncopeUserAttr_firstname&quot;,&quot;extAttrName&quot;:&quot;given_name&quot;,&quot;connObjectKey&quot;:false,&quot;password&quot;:false,&quot;mandatoryCondition&quot;:&quot;false&quot;,&quot;purpose&quot;:null,&quot;propagationJEXLTransformer&quot;:null,&quot;pullJEXLTransformer&quot;:null,&quot;transformers&quot;:[]}]" jsonConf="{&quot;_class&quot;:&quot;org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf&quot;,&quot;domain&quot;:&quot;Master&quot;}" authModuleState="ACTIVE"/>
   <AuthPolicy name="Internal" id="eef94ed3-3ca7-462e-b94e-d33ca7a62e8c" jsonConf="{&quot;_class&quot;:&quot;org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf&quot;,&quot;tryAll&quot;:false,&quot;authModules&quot;:[&quot;Internal&quot;]}"/>
   <OIDCRPClientApp clientId="sample-client-id" bypassApprovalPrompt="1" signIdToken="1" supportedGrantTypes="[&quot;client_credentials&quot;,&quot;password&quot;,&quot;refresh_token&quot;,&quot;authorization_code&quot;]" authPolicy_id="eef94ed3-3ca7-462e-b94e-d33ca7a62e8c" clientAppId="1" redirectUris="[&quot;http://localhost:9009/auth/callback&quot;]" subjectType="PUBLIC" realm_id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" jwtAccessToken="0" supportedResponseTypes="[&quot;TOKEN&quot;,&quot;ID_TOKEN_TOKEN&quot;,&quot;CODE&quot;]" name="Test" clientSecret="sample-client-secret" id="c3e1f526-0dd8-4bd6-a1f5-260dd84bd680" properties="[]"/>
 </dataset>
