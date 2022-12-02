@@ -22,13 +22,9 @@
   <SyncopeSchema id="firstname"/>
   <PlainSchema id="firstname" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <SchemaLabel id="d90f90d0-cf15-407e-bac7-d46a8eb57c05" schema_id="firstname" locale="en" display="Firstname"/>
-  <SchemaLabel id="a9465ef0-b8b4-4af4-840d-77031a6b54a0" schema_id="firstname" locale="it" display="Nome"/>
   <SyncopeSchema id="surname"/>
   <PlainSchema id="surname" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <SchemaLabel id="69712058-162a-4e2a-b07e-c78d82dc286d" schema_id="surname" locale="en" display="Surname"/>
-  <SchemaLabel id="77e7bbbb-d30c-47e1-b6d2-e0a9e8c11fe2" schema_id="surname" locale="it" display="Cognome"/>
 
   <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
