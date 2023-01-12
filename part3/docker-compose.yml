@@ -1,0 +1,164 @@
+version: '3.3'
+
+networks:
+  demo:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+services:
+   db:
+     image: postgres:15
+     restart: always
+     networks:
+       - demo
+     environment:
+       POSTGRES_DB: syncope
+       POSTGRES_USER: syncope
+       POSTGRES_PASSWORD: syncope
+
+   syncope:
+     depends_on:
+       - db
+     image: apache/syncope:3.0.1-SNAPSHOT
+     ports:
+       - "18080:8080"
+     restart: always
+     volumes:
+       - "./conf/core-demo.properties:/opt/syncope/conf/core-demo.properties:ro"
+       - "./conf/userWorkflow.bpmn20.xml:/opt/syncope/conf/userWorkflow.bpmn20.xml:ro"
+       - "./conf/domains:/opt/syncope/conf/domains:ro"
+       - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
+     networks:
+       - demo
+     environment:
+       JAVA_OPTS: "-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -Djavax.net.ssl.trustStore=/opt/syncope/conf/wa.p12 -Djavax.net.ssl.trustStorePassword=password"
+       SPRING_PROFILES_ACTIVE: docker,pgjsonb,demo
+       LOADER_PATH: "/opt/syncope/conf,/opt/syncope/lib,/opt/syncope/jpa-json"
+       DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
+       DB_USER: syncope
+       DB_PASSWORD: syncope
+       DB_POOL_MAX: 10
+       DB_POOL_MIN: 2
+       OPENJPA_REMOTE_COMMIT: sjvm
+       KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: anonymous
+       KEYMASTER_PASSWORD: anonymousSecretKey
+       SERVICE_DISCOVERY_ADDRESS: http://syncope:8080/syncope/rest/
+       ANONYMOUS_USER: anonymous
+       ANONYMOUS_KEY: anonymousSecretKey
+
+   syncope-console:
+     depends_on:
+       - syncope
+     image: apache/syncope-console:3.0.1-SNAPSHOT
+     command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
+     ports:
+       - "28080:8080"
+     restart: always
+     volumes:
+       - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
+     networks:
+       - demo
+     environment:
+       JAVA_OPTS: "-Dfile.encoding=UTF-8 -Dwicket.ioc.useByteBuddy=true -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -Djavax.net.ssl.trustStore=/opt/syncope/conf/wa.p12 -Djavax.net.ssl.trustStorePassword=password"
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: anonymous
+       KEYMASTER_PASSWORD: anonymousSecretKey
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-console:8080/syncope-console/
+       ANONYMOUS_USER: anonymous
+       ANONYMOUS_KEY: anonymousSecretKey
+
+   syncope-enduser:
+     depends_on:
+       - syncope
+     image: apache/syncope-enduser:3.0.1-SNAPSHOT
+     command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
+     ports:
+       - "38080:8080"
+     restart: always
+     networks:
+       - demo
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: anonymous
+       KEYMASTER_PASSWORD: anonymousSecretKey
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/
+       ANONYMOUS_USER: anonymous
+       ANONYMOUS_KEY: anonymousSecretKey
+
+   syncope-wa:
+     depends_on:
+       - syncope
+     image: apache/syncope-wa:3.0.1-SNAPSHOT
+     command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
+     restart: always
+     volumes:
+       - "./conf/wa-demo.properties:/opt/syncope/conf/wa-demo.properties:ro"
+       - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
+     networks:
+       demo:
+         ipv4_address: 172.20.0.6
+     environment:
+       SPRING_PROFILES_ACTIVE: docker,demo
+       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: anonymous
+       KEYMASTER_PASSWORD: anonymousSecretKey
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-wa:8443/syncope-wa/
+       ANONYMOUS_USER: anonymous
+       ANONYMOUS_KEY: anonymousSecretKey
+       CAS_SERVER_NAME: https://syncope-wa:8443
+
+   syncope-sra:
+     depends_on:
+       - syncope
+     image: apache/syncope-sra:3.0.1-SNAPSHOT
+     command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
+     ports:
+       - "8080:8080"
+     restart: always
+     volumes:
+       - "./conf/sra-demo.properties:/opt/syncope/conf/sra-demo.properties:ro"
+       - "./conf/wa.p12:/opt/syncope/conf/wa.p12:ro"
+     networks:
+       - demo
+     environment:
+       JAVA_OPTS: "-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -Dreactor.netty.http.server.accessLogEnabled=true -Djava.security.egd=file:/dev/./urandom -Djavax.net.ssl.trustStore=/opt/syncope/conf/wa.p12 -Djavax.net.ssl.trustStorePassword=password"
+       SPRING_PROFILES_ACTIVE: docker,demo
+       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: anonymous
+       KEYMASTER_PASSWORD: anonymousSecretKey
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-sra:8080/
+       ANONYMOUS_USER: anonymous
+       ANONYMOUS_KEY: anonymousSecretKey
+
+   oidc-native-app:
+     depends_on:
+       - syncope-wa
+     build: ./rp
+     ports:
+       - "9009:9009"
+     restart: always
+     networks:
+       - demo
+     environment:
+       OIDC_CLIENT_ID: sample-client-id
+       OIDC_CLIENT_SECRET: sample-client-secret
+       OIDC_PROVIDER: https://syncope-wa:8443/syncope-wa/oidc
+       OIDC_DO_INTROSPECTION: false
+       OIDC_DO_REFRESH: false
+       GODEBUG: x509ignoreCN=0
+
+   legacy-app:
+     depends_on:
+       - syncope-wa
+     image: php:7.2-apache
+     ports:
+       - "8008:80"
+     restart: always
+     volumes:
+       - "./legacy:/var/www/html:ro"
+     networks:
+       - demo
