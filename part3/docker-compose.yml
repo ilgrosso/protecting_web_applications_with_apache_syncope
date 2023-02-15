@@ -20,7 +20,7 @@ services:
    syncope:
      depends_on:
        - db
-     image: apache/syncope:3.0.1-SNAPSHOT
+     image: apache/syncope:3.0.1
      ports:
        - "18080:8080"
      restart: always
@@ -51,7 +51,7 @@ services:
    syncope-console:
      depends_on:
        - syncope
-     image: apache/syncope-console:3.0.1-SNAPSHOT
+     image: apache/syncope-console:3.0.1
      command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
      ports:
        - "28080:8080"
@@ -73,7 +73,7 @@ services:
    syncope-enduser:
      depends_on:
        - syncope
-     image: apache/syncope-enduser:3.0.1-SNAPSHOT
+     image: apache/syncope-enduser:3.0.1
      command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
      ports:
        - "38080:8080"
@@ -92,7 +92,7 @@ services:
    syncope-wa:
      depends_on:
        - syncope
-     image: apache/syncope-wa:3.0.1-SNAPSHOT
+     image: apache/syncope-wa:3.0.1
      command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
      restart: always
      volumes:
@@ -114,7 +114,7 @@ services:
    syncope-sra:
      depends_on:
        - syncope
-     image: apache/syncope-sra:3.0.1-SNAPSHOT
+     image: apache/syncope-sra:3.0.1
      command: ["wait-for-it", "syncope:8080", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
      ports:
        - "8080:8080"
